@@ -11,6 +11,7 @@ import (
 	"k8s.io/api/core/v1"
 	"time"
 	"k8s.io/metrics/pkg/client/clientset/versioned"
+	"k8s.io/client-go/util/retry"
 )
 
 const (
@@ -62,8 +63,24 @@ func (pl *CustomSchedulerPlugin) Permit(ctx context.Context, state *framework.Cy
 
 	fmt.Printf("CPU usage of node %s: %d%%\n", nodeName, int(cpuUsagePercentage))
 
-	if cpuUsagePercentage > 50 {
-		return framework.NewStatus(framework.Wait, "", time.Duration(10)*time.Second)
+	config, err := clientset.CoreV1().ConfigMaps("default").Get(ctx, "custom-scheduler-config", metav1.GetOptions{})
+	if err != nil {
+		return framework.NewStatus(framework.Error, fmt.Sprintf("Failed to get config map: %v", err))
+	}
+
+	cpuThreshold := 50
+	waitTime := 10
+
+	if val, ok := config.Data["cpuThreshold"]; ok {
+		fmt.Sscanf(val, "%d", &cpuThreshold)
+	}
+
+	if val, ok := config.Data["waitTime"]; ok {
+		fmt.Sscanf(val, "%d", &waitTime)
+	}
+
+	if cpuUsagePercentage > float64(cpuThreshold) {
+		return framework.NewStatus(framework.Wait, "", time.Duration(waitTime)*time.Second)
 	}
 
 	return framework.NewStatus(framework.Success, "")

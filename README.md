@@ -30,6 +30,9 @@ To deploy the custom scheduler plugin to your Kubernetes cluster, follow these s
    ```sh
    kubectl create configmap custom-scheduler-config --from-file=config.yaml
    ```
+   The ConfigMap should contain the following keys with their default values:
+   - `cpuThreshold`: 50
+   - `waitTime`: 10
 2. Deploy the custom scheduler plugin as a Kubernetes Deployment:
    ```sh
    kubectl apply -f deployment.yaml

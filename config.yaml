@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: custom-scheduler-config
+data:
+  cpuThreshold: "50"
+  waitTime: "10"
