@@ -62,6 +62,10 @@ func (pl *CustomSchedulerPlugin) Permit(ctx context.Context, state *framework.Cy
 
 	fmt.Printf("CPU usage of node %s: %d%%\n", nodeName, int(cpuUsagePercentage))
 
+	if cpuUsagePercentage > 50 {
+		return framework.NewStatus(framework.Wait, "", time.Duration(10)*time.Second)
+	}
+
 	return framework.NewStatus(framework.Success, "")
 }
 
