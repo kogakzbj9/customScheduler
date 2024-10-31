@@ -55,6 +55,25 @@ To test the custom scheduler plugin, follow these steps:
    kubectl get pod test-pod -o jsonpath='{.spec.schedulerName}'
    ```
 
+## Using the cpuSpike Annotation
+
+The custom scheduler plugin can also use the `cpuSpike` annotation to override the default CPU threshold for a specific Pod. To use the `cpuSpike` annotation, add it to the Pod's metadata with the desired CPU threshold value. For example:
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-pod
+  annotations:
+    cpuSpike: "75"
+spec:
+  containers:
+  - name: test-container
+    image: nginx
+```
+
+In this example, the `cpuSpike` annotation is set to `75`, which means the custom scheduler will use a CPU threshold of 75% for this Pod instead of the default value.
+
 ## Contributing
 
 If you would like to contribute to this project, please open an issue or submit a pull request.

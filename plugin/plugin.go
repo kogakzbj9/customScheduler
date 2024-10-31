@@ -12,6 +12,7 @@ import (
 	"time"
 	"k8s.io/metrics/pkg/client/clientset/versioned"
 	"k8s.io/client-go/util/retry"
+	"strconv"
 )
 
 const (
@@ -79,7 +80,17 @@ func (pl *CustomSchedulerPlugin) Permit(ctx context.Context, state *framework.Cy
 		fmt.Sscanf(val, "%d", &waitTime)
 	}
 
-	if cpuUsagePercentage > float64(cpuThreshold) {
+	// Retrieve the cpuSpike annotation from the Pod
+	cpuSpikeAnnotation := pod.Annotations["cpuSpike"]
+	cpuSpikeValue := 0
+	if cpuSpikeAnnotation != "" {
+		cpuSpikeValue, err = strconv.Atoi(cpuSpikeAnnotation)
+		if err != nil {
+			return framework.NewStatus(framework.Error, fmt.Sprintf("Invalid cpuSpike annotation value: %v", err))
+		}
+	}
+
+	if cpuUsagePercentage+float64(cpuSpikeValue) > float64(cpuThreshold) {
 		return framework.NewStatus(framework.Wait, "", time.Duration(waitTime)*time.Second)
 	}
 
