@@ -3,6 +3,8 @@
 ## Description
 
 This project implements a custom scheduler plugin for Kubernetes. The custom scheduler plugin allows you to define custom scheduling logic for your Kubernetes cluster.
+This project is under construction.
+
 
 ## Building the Custom Scheduler Plugin
 
