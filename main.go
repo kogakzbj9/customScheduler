@@ -1,11 +1,11 @@
 package main
 
 import (
-	"k8s.io/kubernetes/cmd/kube-scheduler/app"
-	"k8s.io/kubernetes/pkg/scheduler/framework/runtime"
-	"k8s.io/klog/v2"
 	"os"
+
 	"github.com/kogakzbj9/customScheduler/plugin"
+	"k8s.io/klog/v2"
+	"k8s.io/kubernetes/cmd/kube-scheduler/app"
 )
 
 func main() {

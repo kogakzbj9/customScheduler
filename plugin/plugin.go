@@ -4,14 +4,13 @@ import (
 	"context"
 	"fmt"
 	"k8s.io/kubernetes/pkg/scheduler/framework"
-	"k8s.io/kubernetes/pkg/scheduler/framework/runtime"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/api/core/v1"
 	"time"
 	"k8s.io/metrics/pkg/client/clientset/versioned"
-	"k8s.io/client-go/util/retry"
 	"strconv"
 )
 
@@ -43,12 +42,18 @@ func (pl *CustomSchedulerPlugin) ScoreExtensions() framework.ScoreExtensions {
 
 func (pl *CustomSchedulerPlugin) Permit(ctx context.Context, state *framework.CycleState, pod *v1.Pod, nodeName string) *framework.Status {
 	// Get the CPU usage of the target node
-	clientset, err := kubernetes.NewForConfig(rest.InClusterConfig())
+	config, err := rest.InClusterConfig()
+	if err != nil {
+    	// エラーハンドリング
+		return framework.NewStatus(framework.Error, fmt.Sprintf("Failed creating in-cluster config: %v", err))
+	}
+
+	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		return framework.NewStatus(framework.Error, fmt.Sprintf("Failed to create clientset: %v", err))
 	}
 
-	metricsClientset, err := versioned.NewForConfig(rest.InClusterConfig())
+	metricsClientset, err := versioned.NewForConfig(config)
 	if err != nil {
 		return framework.NewStatus(framework.Error, fmt.Sprintf("Failed to create metrics clientset: %v", err))
 	}
@@ -64,7 +69,7 @@ func (pl *CustomSchedulerPlugin) Permit(ctx context.Context, state *framework.Cy
 
 	fmt.Printf("CPU usage of node %s: %d%%\n", nodeName, int(cpuUsagePercentage))
 
-	config, err := clientset.CoreV1().ConfigMaps("default").Get(ctx, "custom-scheduler-config", metav1.GetOptions{})
+	customSchedulerConfig, err := clientset.CoreV1().ConfigMaps("default").Get(ctx, "custom-scheduler-config", metav1.GetOptions{})
 	if err != nil {
 		return framework.NewStatus(framework.Error, fmt.Sprintf("Failed to get config map: %v", err))
 	}
@@ -72,11 +77,11 @@ func (pl *CustomSchedulerPlugin) Permit(ctx context.Context, state *framework.Cy
 	cpuThreshold := 50
 	waitTime := 10
 
-	if val, ok := config.Data["cpuThreshold"]; ok {
+	if val, ok := customSchedulerConfig.Data["cpuThreshold"]; ok {
 		fmt.Sscanf(val, "%d", &cpuThreshold)
 	}
 
-	if val, ok := config.Data["waitTime"]; ok {
+	if val, ok := customSchedulerConfig.Data["waitTime"]; ok {
 		fmt.Sscanf(val, "%d", &waitTime)
 	}
 
@@ -91,16 +96,16 @@ func (pl *CustomSchedulerPlugin) Permit(ctx context.Context, state *framework.Cy
 	}
 
 	if cpuUsagePercentage+float64(cpuSpikeValue) > float64(cpuThreshold) {
-		return framework.NewStatus(framework.Wait, "", time.Duration(waitTime)*time.Second)
+		return framework.NewStatus(framework.Wait, fmt.Sprintf("%v", time.Duration(waitTime)*time.Second))
 	}
 
 	return framework.NewStatus(framework.Success, "")
 }
 
-func New(_ runtime.Object, h framework.Handle) (framework.Plugin, error) {
+func New(ctx context.Context, configuration runtime.Object, h framework.Handle) (framework.Plugin, error)  {
 	return &CustomSchedulerPlugin{handle: h}, nil
 }
 
-func init() {
-	framework.RegisterPlugin(Name, New)
-}
+// func init() {
+// 	framework.RegisterPlugin(Name, New)
+// }
