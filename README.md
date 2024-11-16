@@ -37,7 +37,7 @@ To deploy the custom scheduler plugin to your Kubernetes cluster, follow these s
    - `waitTime`: 10
 2. Deploy the custom scheduler plugin as a Kubernetes Deployment:
    ```sh
-   kubectl apply -f deployment.yaml
+   kubectl apply -f custom-scheduler-deployment.yaml
    ```
 3. Verify that the custom scheduler plugin is running:
    ```sh
