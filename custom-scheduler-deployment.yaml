@@ -21,4 +21,11 @@ spec:
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 10259
+        volumeMounts:
+        - name: custom-scheduler-config
+          mountPath: /etc/custom-scheduler
+      volumes:
+      - name: custom-scheduler-config
+        configMap:
+          name: custom-scheduler-config
       serviceAccountName: custom-scheduler
