@@ -69,7 +69,7 @@ func (pl *CustomSchedulerPlugin) Permit(ctx context.Context, state *framework.Cy
 
 	fmt.Printf("CPU usage of node %s: %d%%\n", nodeName, int(cpuUsagePercentage))
 
-	customSchedulerConfig, err := clientset.CoreV1().ConfigMaps("default").Get(ctx, "custom-scheduler-config", metav1.GetOptions{})
+	customSchedulerConfig, err := clientset.CoreV1().ConfigMaps("kube-system").Get(ctx, "custom-scheduler-config", metav1.GetOptions{})
 	if err != nil {
 		return framework.NewStatus(framework.Error, fmt.Sprintf("Failed to get config map: %v", err))
 	}
