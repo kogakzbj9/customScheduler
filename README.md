@@ -66,19 +66,27 @@ To deploy the custom scheduler plugin to your Kubernetes cluster, follow these s
    ```sh
    kubectl get configmap custom-scheduler-config
    ```
-3. Verify the creation of the custom-scheduler deployment:
+3. Create a service account for the custom scheduler:
+   ```sh
+   kubectl create serviceaccount custom-scheduler -n kube-system
+   ```
+4. Create a cluster role binding for the custom scheduler:
+   ```sh
+   kubectl create clusterrolebinding custom-scheduler --clusterrole=system:kube-scheduler --serviceaccount=kube-system:custom-scheduler
+   ```
+5. Verify the creation of the custom-scheduler deployment:
    ```sh
    kubectl get deployments -n kube-system -l app=custom-scheduler
    ```
-4. Deploy the custom scheduler plugin as a Kubernetes Deployment:
+6. Deploy the custom scheduler plugin as a Kubernetes Deployment:
    ```sh
    kubectl apply -f custom-scheduler-deployment.yaml
    ```
-5. Verify that the custom scheduler plugin is running:
+7. Verify that the custom scheduler plugin is running:
    ```sh
    kubectl get pods -n kube-system -l app=custom-scheduler
    ```
-6. Verify the correctness of the command execution results:
+8. Verify the correctness of the command execution results:
    ```sh
    kubectl logs <pod-name> -n kube-system
    ```
