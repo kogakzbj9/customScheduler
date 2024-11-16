@@ -5,25 +5,6 @@
 This project implements a custom scheduler plugin for Kubernetes. The custom scheduler plugin allows you to define custom scheduling logic for your Kubernetes cluster.
 This project is under construction.
 
-
-## Building the Custom Scheduler Plugin
-
-To build the custom scheduler plugin, follow these steps:
-
-1. Ensure you have a Kubernetes cluster and the necessary tools for development, such as Go and kubectl.
-2. Clone the repository:
-   ```sh
-   git clone https://github.com/kogakzbj9/customScheduler.git
-   ```
-3. Navigate to the project directory:
-   ```sh
-   cd customScheduler
-   ```
-4. Build the custom scheduler plugin:
-   ```sh
-   go build -o custom-scheduler .
-   ```
-
 ## Building the Docker Image
 
 To build the Docker image for the custom scheduler, follow these steps:
