@@ -24,6 +24,33 @@ To build the custom scheduler plugin, follow these steps:
    go build -o custom-scheduler .
    ```
 
+## Building the Docker Image
+
+To build the Docker image for the custom scheduler, follow these steps:
+
+1. Ensure you have Docker installed on your machine.
+2. Navigate to the project directory:
+   ```sh
+   cd customScheduler
+   ```
+3. Build the Docker image:
+   ```sh
+   docker build -t custom-scheduler:latest .
+   ```
+
+## Pushing the Docker Image to a Registry
+
+To push the Docker image to a registry, follow these steps:
+
+1. Tag the Docker image with the registry URL:
+   ```sh
+   docker tag custom-scheduler:latest <your-registry-url>/custom-scheduler:latest
+   ```
+2. Push the Docker image to the registry:
+   ```sh
+   docker push <your-registry-url>/custom-scheduler:latest
+   ```
+
 ## Deploying the Custom Scheduler Plugin
 
 To deploy the custom scheduler plugin to your Kubernetes cluster, follow these steps:
@@ -54,6 +81,46 @@ To deploy the custom scheduler plugin to your Kubernetes cluster, follow these s
 6. Verify the correctness of the command execution results:
    ```sh
    kubectl logs <pod-name> -n kube-system
+   ```
+
+## Deploying the Custom Scheduler Using the Docker Image
+
+To deploy the custom scheduler using the Docker image, follow these steps:
+
+1. Update the `custom-scheduler-deployment.yaml` file to use the Docker image from your registry:
+   ```yaml
+   apiVersion: apps/v1
+   kind: Deployment
+   metadata:
+     name: custom-scheduler
+     namespace: kube-system
+     labels:
+       app: custom-scheduler
+   spec:
+     replicas: 1
+     selector:
+       matchLabels:
+         app: custom-scheduler
+     template:
+       metadata:
+         labels:
+           app: custom-scheduler
+       spec:
+         containers:
+         - name: custom-scheduler
+           image: <your-registry-url>/custom-scheduler:latest
+           imagePullPolicy: IfNotPresent
+           ports:
+           - containerPort: 10259
+         serviceAccountName: custom-scheduler
+   ```
+2. Apply the updated deployment:
+   ```sh
+   kubectl apply -f custom-scheduler-deployment.yaml
+   ```
+3. Verify that the custom scheduler is running using the Docker image:
+   ```sh
+   kubectl get pods -n kube-system -l app=custom-scheduler
    ```
 
 ## Testing the Custom Scheduler Plugin
