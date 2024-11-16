@@ -24,11 +24,16 @@ To build the custom scheduler binary, follow these steps:
 To build the Docker image for the custom scheduler, follow these steps:
 
 1. Ensure you have Docker installed on your machine.
-2. Navigate to the project directory:
+2. If you are using Minikube, run the following command to set up the Docker environment:
+   ```sh
+   eval $(minikube docker-env)
+   ```
+   This command configures Docker to use the Minikube Docker daemon, allowing you to build Docker images directly inside the Minikube environment.
+3. Navigate to the project directory:
    ```sh
    cd customScheduler
    ```
-3. Build the Docker image:
+4. Build the Docker image:
    ```sh
    docker build -t custom-scheduler:latest .
    ```
