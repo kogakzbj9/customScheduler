@@ -5,6 +5,7 @@ metadata:
   annotations:
     cpuSpike: "75"
 spec:
+  schedulerName: custom-scheduler
   containers:
   - name: test-container
     image: nginx
