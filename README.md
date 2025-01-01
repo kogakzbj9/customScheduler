@@ -244,6 +244,18 @@ spec:
 
 In this example, the `cpuSpike` annotation is set to `75`, which means the custom scheduler will use a CPU threshold of 75% for this Pod instead of the default value.
 
+## Debug Logging
+
+The custom scheduler plugin now includes debug logging to help you understand the flow of execution and the values of key variables. The debug logs are generated using `klog` and can be found in the log files.
+
+To enable debug logging, ensure that the `klog` flags are set appropriately when running the custom scheduler. For example:
+
+```sh
+./custom-scheduler -v=4
+```
+
+The `-v=4` flag sets the verbosity level to 4, which enables debug logging. You can adjust the verbosity level as needed.
+
 ## Contributing
 
 If you would like to contribute to this project, please open an issue or submit a pull request.

@@ -12,6 +12,7 @@ import (
 	"time"
 	"k8s.io/metrics/pkg/client/clientset/versioned"
 	"strconv"
+	"k8s.io/klog/v2"
 )
 
 const (
@@ -27,11 +28,15 @@ func (pl *CustomSchedulerPlugin) Name() string {
 }
 
 func (pl *CustomSchedulerPlugin) Filter(ctx context.Context, state *framework.CycleState, pod *v1.Pod, nodeInfo *framework.NodeInfo) *framework.Status {
+	klog.Infof("Entering Filter function for pod %s", pod.Name)
+	defer klog.Infof("Exiting Filter function for pod %s", pod.Name)
 	// Implement your custom filter logic here
 	return framework.NewStatus(framework.Success, "")
 }
 
 func (pl *CustomSchedulerPlugin) Score(ctx context.Context, state *framework.CycleState, pod *v1.Pod, nodeName string) (int64, *framework.Status) {
+	klog.Infof("Entering Score function for pod %s on node %s", pod.Name, nodeName)
+	defer klog.Infof("Exiting Score function for pod %s on node %s", pod.Name, nodeName)
 	// Implement your custom scoring logic here
 	return 0, framework.NewStatus(framework.Success, "")
 }
@@ -41,6 +46,9 @@ func (pl *CustomSchedulerPlugin) ScoreExtensions() framework.ScoreExtensions {
 }
 
 func (pl *CustomSchedulerPlugin) Permit(ctx context.Context, state *framework.CycleState, pod *v1.Pod, nodeName string) *framework.Status {
+	klog.Infof("Entering Permit function for pod %s on node %s", pod.Name, nodeName)
+	defer klog.Infof("Exiting Permit function for pod %s on node %s", pod.Name, nodeName)
+
 	// Get the CPU usage of the target node
 	config, err := rest.InClusterConfig()
 	if err != nil {
@@ -67,7 +75,7 @@ func (pl *CustomSchedulerPlugin) Permit(ctx context.Context, state *framework.Cy
 	currentCPUUsage := nodeMetrics.Usage.Cpu().MilliValue()
 	cpuUsagePercentage := (float64(currentCPUUsage) / float64(allocatedCPU)) * 100
 
-	fmt.Printf("CPU usage of node %s: %d%%\n", nodeName, int(cpuUsagePercentage))
+	klog.Infof("CPU usage of node %s: %d%%", nodeName, int(cpuUsagePercentage))
 
 	customSchedulerConfig, err := clientset.CoreV1().ConfigMaps("kube-system").Get(ctx, "custom-scheduler-config", metav1.GetOptions{})
 	if err != nil {
@@ -103,6 +111,7 @@ func (pl *CustomSchedulerPlugin) Permit(ctx context.Context, state *framework.Cy
 }
 
 func New(ctx context.Context, configuration runtime.Object, h framework.Handle) (framework.Plugin, error)  {
+	klog.Infof("Creating new CustomSchedulerPlugin")
 	return &CustomSchedulerPlugin{handle: h}, nil
 }
 
