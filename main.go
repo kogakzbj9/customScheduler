@@ -9,6 +9,9 @@ import (
 )
 
 func main() {
+	klog.InitFlags(nil)
+	defer klog.Flush()
+
 	command := app.NewSchedulerCommand(
 		app.WithPlugin(plugin.Name, plugin.New),
 	)
