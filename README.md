@@ -198,6 +198,33 @@ To test the custom scheduler plugin, follow these steps:
    kubectl get pod test-pod -o jsonpath='{.spec.schedulerName}'
    ```
 
+3. Check the status of the test pod:
+
+   ```sh
+   kubectl get pod test-pod -o jsonpath='{.status.phase}'
+   ```
+
+## Investigating Non-Running States of the Test Pod
+
+If the test pod is not in the `Running` state, follow these steps to investigate the issue:
+
+1. Check the events for the test pod:
+
+   ```sh
+   kubectl describe pod test-pod
+   ```
+
+2. Check the logs for the test pod:
+
+   ```sh
+   kubectl logs test-pod
+   ```
+
+3. Common issues and resolutions:
+   - `Pending`: The pod is waiting to be scheduled. Check for resource constraints or scheduling issues.
+   - `Failed`: The pod has encountered an error. Check the pod's events and logs for more details.
+   - `Unknown`: The pod's state is unknown. Check the node's status and connectivity.
+
 ## Using the cpuSpike Annotation
 
 The custom scheduler plugin can also use the `cpuSpike` annotation to override the default CPU threshold for a specific Pod. To use the `cpuSpike` annotation, add it to the Pod's metadata with the desired CPU threshold value. For example:
